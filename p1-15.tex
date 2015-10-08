@@ -1,0 +1,112 @@
+\documentclass{article}
+%\usepackage{amsmath}
+% titlepage causes separate title page
+% our latex is biased off 1in vertically and horizontally
+\newtheorem{theorem}{Theorem}
+\setlength{\topmargin}{0.1in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textheight}{9in}
+\setlength{\textwidth}{6.5in}
+% require that floats fill 90% of a page in order for that page to be
+% ``float-only''
+\renewcommand{\dblfloatpagefraction}{0.9}
+\renewcommand{\floatpagefraction}{0.9}
+%\renewcommand{\baselinestretch}{1.2} % interline spacing
+%\setlength{\parindent}{0in}
+%\parskip=10pt plus2pt minus2pt
+%\setlength{\unitlength}{0.1in}
+%\pagestyle{empty} % no page numbering
+\newenvironment{bibparagraph}{\begin{list}{}{ %
+    \setlength{\labelsep}{-\leftmargin} %
+    \setlength{\labelwidth}{0pt} %
+    \setlength{\itemindent}{-\leftmargin} %
+    \setlength{\listparindent}{0pt}}}{\end{list}}
+\def\makefigure#1#2{\begin{figure}
+\begin{center}
+\input{#1}
+\end{center}
+\caption{#2}
+\label{#1}
+\end{figure}}
+
+\def\limplies{\; \supset \;}
+\def\land{\: \wedge \:}
+\def\lor{\: \vee \:}
+\def\iff{\; \equiv \;}
+\def\lnot{\neg}
+\def\lforall#1{\forall \: #1 \;}
+\def\lexists#1{\exists \: #1 \;}
+\def\glitch#1{{\tt #1}} % glitch on
+%\def\glitch#1{} % glitch off
+\def\comment#1{}
+\def\pnil{[\;]}
+\def\pif{\; \mbox{\tt :- } \;}
+\def\tuple#1{$\langle #1\rangle$}
+\def\mtuple#1{\langle #1\rangle}
+\def\ceiling#1{\lceil #1\rceil}
+\def\floor#1{\lfloor #1\rfloor}
+\def\centerps#1{\begin{center}
+\leavevmode
+\epsfbox{#1}
+\end{center}}
+\def\argmax{\mathop{\rm argmax}}
+\def\argmin{\mathop{\rm argmin}}
+\def\grad{\nabla\!}
+\def\celsius{^\circ\mbox{C}}
+\renewcommand{\labelenumi}{(\alph{enumi})}
+
+\def\x{{\bf x}}
+\def\w{{\bf w}}
+
+\begin{document}
+{\Large
+\begin{center}
+CS534 --- Implementation Assignment 1 --- {Due 11:59PM Oct 10th, 2014}
+\end{center}
+}
+
+\noindent{\Large
+\textbf{General instructions.
+}}\\
+1. The following languages are acceptable: Java, C/C++, Matlab, Python and R. \\
+2. You can work in team of up to 3 people. Each team will only need to submit one copy of the source code and report.\\
+3. Your source code and report will be submitted through the TEACH site
+\begin{verbatim}https://secure.engr.oregonstate.edu:8000/teach.php?type=want_auth\end{verbatim}
+Please clearly indicate your team members' information. \\
+4. Be sure to answer all the questions in your report. You will be graded based on your code as well as the report. In particular, \textbf{the clarity and quality of the report will be worth 10 pts}. So please write your report in clear and concise manner. Clearly label your figures, legends, and tables.\\
+5. In your report, the results should always be accompanied by discussions of the results. Do the results follow your expectation? Any surprises? What kind of explanation can you provide? \\
+\\
+\noindent{\Large
+\textbf{Linear regression with $L_2$ regularization (total points: 60 + 10 pts)
+}}\\
+For the first part of the assignment, you need to implement linear regression with $L_2$ (quadratic) regularization, which learns from a set of $N$ training examples $\{\x_i, y_i\}_{i=1}^N$ an weight vector $\mathbf{w}$ that optimize the following regularized Sum of Squared Error (SSE) objective:
+\begin{equation}
+\label{eq1}
+\sum_{i=1}^N (y_i-\mathbf{w}^T{\x_i})^2 +\lambda \| \w \| ^2
+\end{equation}
+
+To optimize this objective, you need to implement the gradient descent algorithm. Because some features have very large values, you may wish to normalize the features to have zero mean and unit variance or to the range between zero and one. This will allow the gradient descent procedure to converge better.
+
+Data: you are provided with a training set and a test set, both in csv format. Each row of the data file contains the data for one example. The first column contains the dummy feature taking the constant value of 1 for all examples and the last column stores the target $y$ values for each example. Here is what you need to do and report:\\
+
+1. Explore different learning rate for gradient descent (10 pts). Describe your strategy in determining the learning rate. What learning rate or learning rates did you observe to be good for this particular dataset? Report your observations.\\
+
+2. Experiments with different $\lambda$ values (20 pts):  You will test the effect of the regularizer on your linear regressor. It is often the case that we don't really what the right $\lambda$ value should be and we will need to consider a range of different $\lambda$ values. For this project, consider at least the following values for $\lambda$: $0, 10^{-3}, 10^{-2}, 10^{-1}, 1, 10, 100$. Feel free to explore the choices of $\lambda$ in a more finer search resolution. Report the SSE (the first term in the Eq. \ref{eq1} ) on the training data and the test data respectively for each value of $\lambda$. Your discussion of the results should clearly answer the following questions:
+\begin{enumerate}
+\item What trend do you observe from the training SSE as we change $\lambda$ value?
+\item What tread do you observe from the test SSE?
+\item Provide an explanation for the observed behaviors.
+\end{enumerate}
+
+3. Selecting the best $\lambda$ with 10-fold cross-validation. (30 pts). Cross-validation is a commonly used technique for selecting hyperparameters (e.g., $\lambda$).  In $k$-fold cross validation, you split the training data into $k$ parts. To evaluate a candidate parameter value $\lambda$,  we repeat the following for $k$ times. Each time, we train on $k-1$ parts and test on the remaining one part (this single part is called the validation set) and measure its SSE. After $k$ times, each of the ten parts would have served as the validation set exactly once and we then sum up the $k$ SSEs as the cross-validated SSE for the $\lambda$ value.  Among all candidate $\lambda$ values, we select the one that has the lowest cross-validated SSE. Implement the $k$-fold cross-validation functionality for selecting $\lambda$'s.  Apply $10$-fold cross-validation to the training data and report the cross-validated SSEs for different $\lambda$ values. Answer the following questions:
+\begin{enumerate}
+\item Which $\lambda$ would you choose based on the cross-validation results?
+\item Is the cross-validated SSE larger or smaller than the training SSE? Can you provide an explanation for that?
+\item What trend do you observe from the cross-validated SSEs as we change $\lambda$? Which one do you think this trend resemble more, the trend of training SSE or the trend of test SSE? Why do you think this is the case?
+\end{enumerate}
+
+
+\end{document}

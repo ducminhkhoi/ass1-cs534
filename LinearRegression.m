@@ -1,0 +1,111 @@
+clear all;
+close all;
+% load train and test data
+train_data = csvread('train p1-15.csv');
+test_data = csvread('test p1-15.csv');
+
+n_features = size(train_data,2)-1;
+
+X_train = train_data(:, 1:n_features);
+Y_train = train_data(:, n_features+1);
+
+X_test = test_data(:,1:n_features);
+Y_test = test_data(:,n_features+1);
+
+% Normalize data
+[X_train, Y_train] = Normalize(X_train, Y_train);
+[X_test, Y_test] = Normalize(X_test, Y_test);
+
+% initialize value
+w = zeros(n_features, 1);
+epsilon = 0.00001;
+
+
+% % test code linear regression with gradient descent
+% lambda = 0.1;
+% alpha = 0.05;
+% [w_i, n_iters] = GradientDescent(w, X_train, Y_train, lambda, alpha, epsilon);
+% display(w_i);
+% display(n_iters);
+
+% % question 1
+% alphas = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06]; % learning rate, choose 0.05 with 55 iters
+% iters = zeros(1,size(alphas,2));
+% lambda = 1;
+% for i=1:size(alphas,2),
+%     [w_i, n_iters] = GradientDescent(w, X_train, Y_train, lambda, alphas(1,i), epsilon);
+%     sse = SSE(X_test, w_i, Y_test);
+%     iters(1,i) = n_iters;
+%     fprintf('alpha: %f\t n_iters: %f\t mse: %f\n', alpha, n_iters, sse);
+% end
+% 
+% figure; hold on;
+% plot(alphas,iters);
+
+% % test with new w
+% error = MSE(X_test, w, Y_test);
+% display(error);
+
+% % question 2
+lambdas = [0, 1e-15, 1e-10, 1e-5,  0.0005, 0.001, 0.01, 0.1, 1, 10, 20, 100]; % regularization value, choose 1 with 55 iters
+% 
+% learn on training data, test on test data
+alpha = 0.05;
+for i = 1:length(lambdas),
+    [w_i, n_iters] = GradientDescent(w, X_train, Y_train, lambdas(i), alpha, epsilon);
+    sse_train(i) = SSE(X_train, w_i, Y_train);
+    sse_test(i) = SSE(X_test, w_i, Y_test);
+   % display(lambdas);
+    
+   % fprintf('lambda: %f\t n_iters: %f\t sse_train: %f\t sse_test: %f\n', lambdas(i), n_iters, sse_train(i), sse_test(i));
+    
+end
+
+% % % learn on test data, test on train data
+% alpha = 0.03;
+% for lambda = lambdas,
+%     [w_i, n_iters] = GradientDescent(w, X_test, Y_test, lambda, alpha, epsilon);
+%     sse_test = SSE(X_train, w_i, Y_train);
+%     fprintf('lambda: %f\t n_iters: %f\t sse: %f\n', lambda, n_iters, sse_test);
+% end
+
+% % question 3
+% n_samples = size(X_train, 1);
+% k = 10;
+% %lambdas = [0, 0.0005, 0.001, 0.01, 0.1, 1, 10, 20, 100];
+% alpha = 0.03;
+% j = 1;
+% sse = zeros(length(lambdas),1);
+% X_train_new = [X_train; X_train];
+% Y_train_new = [Y_train; Y_train];
+% size_of_part = ceil(n_samples / 10);
+% for lambda = lambdas,
+%     for i = 0:(k-1),   
+%         begin_test = i*size_of_part+1; end_test = (i+1)*size_of_part;
+%         begin_train = (i+1)*size_of_part+1; end_train = (i+10)*size_of_part;          
+%         
+%         X_test_fold = X_train_new(begin_test:end_test,:);
+%         Y_test_fold = Y_train_new(begin_test:end_test,:);
+%         X_train_fold = X_train_new(begin_train:end_train,:);
+%         Y_train_fold = Y_train_new(begin_train:end_train,:);
+%         
+%         [w_i, n_iters] = GradientDescent(w, X_train_fold, Y_train_fold, lambda, alpha, epsilon);
+%         sse(j) = sse(j) + SSE(X_test_fold, w_i, Y_test_fold);
+%     end
+%     fprintf('lambda: %f\t sse: %f\n', lambda, sse(j));
+%     j = j + 1;
+%     
+% end
+% [M, I] = min(sse);
+% chooseLambda = lambdas(I);
+figure;hold on;
+% 
+% plot(log(lambdas),sse);
+% display(M);
+% display(chooseLambda);
+
+plot(log(lambdas), sse_train, 'r');
+plot(log(lambdas), sse_test,'b');
+[min_train, Itrain]=min(sse_train)
+[min_test, Itest] = min(sse_test)
+
